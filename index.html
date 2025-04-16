@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        (function() {
+            const preference = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (preference === 'dark' || (!preference && prefersDark)) {
+                document.documentElement.classList.add('dark-mode');
+            }
+        })();
+    </script>
+    <title>花式文字產生器 (Unicode)</title>
+    <style>
+        :root {
+            /* 亮色模式 (預設) */
+            --bg-color: #f4f4f4;
+            --container-bg: #ffffff;
+            --text-color: #212529; /* 更深的黑色 */
+            --label-color: #495057;
+            --border-color: #dee2e6; /* 淺灰 */
+            --output-bg: #e9ecef;
+            --button-bg: #007bff;
+            --button-hover-bg: #0056b3;
+            --copy-button-bg: #28a745;
+            --copy-button-hover-bg: #218838;
+            --link-color: #0366d6;
+            --separator-color: #e9ecef; /* 分隔線顏色 */
+            --warning-text: #856404;
+            --warning-bg: #fff3cd;
+            --warning-border: #ffeeba;
+            --toggle-button-bg: #eee;
+            --toggle-button-hover-bg: #ddd;
+
+            /* CSS 變數定義，方便切換 */
+            color-scheme: light; /* 告知瀏覽器當前色彩配置 */
+        }
+
+        html.dark-mode {
+            /* 暗色模式 */
+            --bg-color: #121212; /* 深黑背景 */
+            --container-bg: #1e1e1e; /* 容器稍亮 */
+            --text-color: #e0e0e0; /* 淺灰文字 */
+            --label-color: #adb5bd; /* 標籤顏色 */
+            --border-color: #495057; /* 邊框顏色 */
+            --output-bg: #343a40; /* 輸出區域背景 */
+            --button-bg: #0d6efd; /* 亮藍色按鈕 */
+            --button-hover-bg: #0b5ed7;
+            --copy-button-bg: #198754; /* 暗綠色 */
+            --copy-button-hover-bg: #157347;
+            --link-color: #58a6ff; /* GitHub 暗模式連結藍 */
+            --separator-color: #343a40; /* 分隔線顏色 */
+            --warning-text: #f8d7da; /* 暗模式警告文字 */
+            --warning-bg: #491c20;  /* 暗模式警告背景 */
+            --warning-border: #842029; /* 暗模式警告邊框 */
+            --toggle-button-bg: #333;
+            --toggle-button-hover-bg: #444;
+
+            color-scheme: dark; /* 告知瀏覽器當前色彩配置 */
+        }
+
+        /* 基本樣式 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* 系統通用字體 */
+            line-height: 1.6;
+            padding: 20px;
+            margin: 0 auto; /* 移除 max-width，讓 container 自己控制 */
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            background-color: var(--container-bg);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* 稍微加深陰影 */
+            max-width: 750px; /* 限制最大寬度 */
+            margin: 20px auto; /* 上下邊距 + 水平居中 */
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        /* Header 區塊 */
+        .header {
+            display: flex;
+            justify-content: space-between; /* 標題靠左，按鈕靠右 */
+            align-items: center; /* 垂直居中 */
+            margin-bottom: 30px; /* 與下方內容間距 */
+            padding-bottom: 15px; /* 底部留白 */
+            border-bottom: 1px solid var(--separator-color); /* 分隔線 */
+            transition: border-color 0.3s ease;
+        }
+
+        h1 {
+            color: var(--text-color);
+            /* 移除 text-align: center */
+            margin: 0; /* 移除預設邊距 */
+            font-size: 1.8rem; /* 調整標題大小 */
+            transition: color 0.3s ease;
+        }
+
+        #theme-toggle {
+            background-color: var(--toggle-button-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 50%; /* 圓形按鈕 */
+            cursor: pointer;
+            font-size: 1.2rem; /* 圖示大小 */
+            padding: 8px; /* 內邊距 */
+            width: 40px; /* 固定寬高 */
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+        }
+        #theme-toggle:hover {
+            background-color: var(--toggle-button-hover-bg);
+            transform: scale(1.1); /* 懸停放大效果 */
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600; /* 加粗一點 */
+            color: var(--label-color);
+            transition: color 0.3s ease;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px; /* 增加內邊距 */
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px; /* 圓角稍大 */
+            box-sizing: border-box;
+            font-size: 1rem;
+            min-height: 90px;
+            background-color: var(--container-bg); /* 與容器背景一致或稍有區別 */
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+        textarea:focus {
+            border-color: var(--button-bg); /* 焦點時邊框變色 */
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); /* 模擬 Bootstrap 焦點效果 */
+            outline: none;
+        }
+
+
+        .output-area {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            background-color: var(--output-bg);
+            min-height: 100px;
+            font-size: 1.1rem;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: var(--text-color); /* 確保輸出文字顏色也切換 */
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .buttons {
+            margin-bottom: 25px; /* 增加下方間距 */
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px; /* 按鈕間距稍大 */
+        }
+
+        button:not(#theme-toggle) { /* 不包含主題切換按鈕 */
+            padding: 10px 18px; /* 增加按鈕大小 */
+            border: none;
+            background-color: var(--button-bg);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+        button:not(#theme-toggle):hover {
+            background-color: var(--button-hover-bg);
+            opacity: 0.9; /* 懸停透明度 */
+        }
+        button:not(#theme-toggle):active {
+            transform: scale(0.98); /* 點擊縮小效果 */
+        }
+
+
+        .copy-button {
+            background-color: var(--copy-button-bg);
+            transition: background-color 0.2s ease, transform 0.1s ease; /* 繼承 transition */
+        }
+        .copy-button:hover {
+            background-color: var(--copy-button-hover-bg);
+            opacity: 0.9;
+        }
+
+        .warning {
+            font-size: 0.9em;
+            color: var(--warning-text);
+            background-color: var(--warning-bg);
+            border: 1px solid var(--warning-border);
+            border-radius: 6px;
+            padding: 15px; /* 增加內邊距 */
+            margin-top: 25px;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+        .warning ul {
+            padding-left: 20px; /* 列表縮進 */
+            margin-bottom: 0; /* 移除列表底部外邊距 */
+        }
+
+
+        .note {
+            font-size: 0.9em;
+            color: var(--label-color); /* 使用標籤顏色 */
+            margin-top: 25px;
+            border-top: 1px solid var(--separator-color);
+            padding-top: 20px;
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+        .note ul {
+            padding-left: 20px;
+            margin-bottom: 0;
+        }
+        .note strong {
+            color: var(--text-color); /* 強調文字顏色 */
+        }
+
+
+        /* GitHub 連結樣式 */
+        .github-link {
+            text-align: center;
+            margin-top: 35px;
+            padding-top: 25px;
+            border-top: 1px solid var(--separator-color);
+            font-size: 0.9em;
+            color: var(--label-color);
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+        .github-link a {
+            color: var(--link-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .github-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Toast 訊息樣式 */
+        #toast-container {
+            position: fixed; /* 固定在螢幕上 */
+            top: 20px; /* 距離頂部一些距離 */
+            left: 50%; /* 水平居中 */
+            transform: translateX(-50%); /* 調整以實現精確居中 */
+            z-index: 1000; /* 確保在其他元素之上 */
+            pointer-events: none; /* 防止阻擋點擊事件 */
+        }
+
+        .toast {
+            background-color: rgba(0, 0, 0, 0.8); /* 半透明黑色背景 */
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            opacity: 0; /* 初始時隱藏 */
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+            transform: translateY(-20px); /* 初始時在上方 */
+            font-size: 0.9em;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>花式文字產生器</h1> <button id="theme-toggle" aria-label="切換色彩主題" title="切換色彩主題">
+        </button>
+    </div>
+
+    <label for="inputText">輸入文字：</label>
+    <textarea id="inputText" placeholder="在這裡輸入或貼上你的文字..."></textarea>
+
+    <label>選擇轉換樣式：</label>
+    <div class="buttons">
+        <button onclick="convertToStyledText('bold')">粗體 (Bold)</button>
+        <button onclick="convertToStyledText('italic')">斜體 (Italic)</button>
+        <button onclick="convertToStyledText('boldItalic')">粗斜體 (Bold Italic)</button>
+        <button onclick="convertToStyledText('strikethrough')">刪除線 (Strikethrough)</button>
+    </div>
+
+    <label for="outputResult">樣式輸出結果：</label>
+    <div id="outputResult" class="output-area">轉換後的文字會顯示在這裡...</div>
+    <button onclick="copyOutput()" class="copy-button">複製輸出結果</button>
+
+    <div class="warning">
+        <strong>重要提示：</strong>
+        <ul>
+            <li>這裡產生的文字使用了特殊的 Unicode 字符來模擬樣式。</li>
+            <li>**顯示效果依賴您裝置上的字型支援**，尤其斜體和粗斜體，在某些裝置或平台上可能無法正確顯示（可能看起來像普通文字或顯示為 ☐）。</li>
+            <li>這些特殊字符可能影響螢幕閱讀器和搜尋功能。</li>
+            <li>這並非標準的 Markdown 語法。</li>
+        </ul>
+    </div>
+    <div class="note">
+        <p><strong>使用說明：</strong></p>
+        <ul>
+            <li>在「輸入文字」欄位輸入文字。</li>
+            <li>點擊您想要的樣式按鈕。</li>
+            <li>下方「樣式輸出結果」區域會顯示帶有視覺樣式的文字。</li>
+            <li>點擊「複製輸出結果」將這些特殊字符複製到剪貼簿。</li>
+            <li>您可以嘗試將複製的文字貼到社群媒體、聊天應用等地方，但顯示效果取決於對方平台及您裝置的字型是否支援這些 Unicode 字符。</li>
+        </ul>
+    </div>
+
+    <div class="github-link">
+        <p>
+            在 GitHub 上查看此專案的原始碼：<br>
+            <a href="https://github.com/KEVIN970712/Fancy-text-generator" target="_blank" rel="noopener noreferrer" title="前往 KEVIN970712/Fancy-text-generator GitHub Repository">
+                KEVIN970712/Fancy-text-generator
+            </a>
+        </p>
+    </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+    // --- Unicode 字符映射表 (保持不變) ---
+    const charMaps = {
+        bold: { a: '𝗮', b: '𝗯', c: '𝗰', d: '𝗱', e: '𝗲', f: '𝗳', g: '𝗴', h: '𝗵', i: '𝗶', j: '𝗷', k: '𝗸', l: '𝗹', m: '𝗺', n: '𝗻', o: '𝗼', p: '𝗽', q: '𝗾', r: '𝗿', s: '𝘀', t: '𝘁', u: '𝘂', v: '𝘃', w: '𝘄', x: '𝘅', y: '𝘆', z: '𝘇', A: '𝗔', B: '𝗕', C: '𝗖', D: '𝗗', E: '𝗘', F: '𝗙', G: '𝗚', H: '𝗛', I: '𝗜', J: '𝗝', K: '𝗞', L: '𝗟', M: '𝗠', N: '𝗡', O: '𝗢', P: '𝗣', Q: '𝗤', R: '𝗥', S: '𝗦', T: '𝗧', U: '𝗨', V: '𝗩', W: '𝗪', X: '𝗫', Y: '𝗬', Z: '𝗭', 0: '𝟬', 1: '𝟭', 2: '𝟮', 3: '𝟯', 4: '𝟰', 5: '𝟱', 6: '𝟲', 7: '𝟳', 8: '𝟴', 9: '𝟵' },
+        italic: { a: '𝘢', b: '𝘣', c: '𝘤', d: '𝘥', e: '𝘦', f: '𝘧', g: '𝘨', h: '𝘩', i: '𝘪', j: '𝘫', k: '𝘬', l: '𝘭', m: '𝘮', n: '𝘯', o: '𝘰', p: '𝘱', q: '𝘲', r: '𝘳', s: '𝘴', t: '𝘵', u: '𝘶', v: '𝘷', w: '𝘸', x: '𝘹', y: '𝘺', z: '𝘻', A: '𝘈', B: '𝘉', C: '𝘊', D: '𝘋', E: '𝘌', F: '𝘍', G: '𝘎', H: '𝘏', I: '𝘐', J: '𝘑', K: '𝘒', L: '𝘓', M: '𝘔', N: '𝘕', O: '𝘖', P: '𝘗', Q: '𝘘', R: '𝘙', S: '𝘚', T: '𝘛', U: '𝘜', V: '𝘝', W: '𝘞', X: '𝘟', Y: '𝘠', Z: '𝘡' },
+        boldItalic: { a: '𝙖', b: '𝙗', c: '𝙘', d: '𝙙', e: '𝙚', f: '𝙛', g: '𝙜', h: '𝙝', i: '𝙞', j: '𝙟', k: '𝙠', l: '𝙡', m: '𝙢', n: '𝙣', o: '𝙤', p: '𝙥', q: '𝙦', r: '𝙧', s: '𝙨', t: '𝙩', u: '𝙪', v: '𝙫', w: '𝙬', x: '𝙭', y: '𝙮', z: '𝙯', A: '𝘼', B: '𝘽', C: '𝘾', D: '𝘿', E: '𝙀', F: '𝙁', G: '𝙂', H: '𝙃', I: '𝙄', J: '𝙅', K: '𝙆', L: '𝙇', M: '𝙈', N: '𝙉', O: '𝙊', P: '𝙋', Q: '𝙌', R: '𝙍', S: '𝙎', T: '𝙏', U: '𝙐', V: '𝙑', W: '𝙒', X: '𝙓', Y: '𝙔', Z: '𝙯' }
+    };
+
+    // --- DOM 元素獲取 ---
+    const inputTextElem = document.getElementById('inputText');
+    const outputResultElem = document.getElementById('outputResult');
+    const themeToggleButton = document.getElementById('theme-toggle');
+    const rootElement = document.documentElement; // HTML 根元素
+    const toastContainer = document.getElementById('toast-container'); // 新增
+
+    // --- 文字轉換函數 (保持不變) ---
+    function convertToStyledText(style) {
+        const text = inputTextElem.value;
+        let result = '';
+        outputResultElem.innerText = '處理中...';
+        setTimeout(() => {
+            if (style === 'strikethrough') {
+                for (let i = 0; i < text.length; i++) {
+                    result += text[i] + '\u0336';
+                }
+            } else {
+                const map = charMaps[style];
+                if (!map) { result = text; }
+                else {
+                    for (let i = 0; i < text.length; i++) {
+                        const char = text[i];
+                        result += map[char] || char;
+                    }
+                }
+            }
+            outputResultElem.innerText = result || '轉換後的文字會顯示在這裡...';
+        }, 10);
+    }
+
+    // --- 顯示 toast 訊息的函數 ---
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.classList.add('toast');
+        toast.textContent = message;
+        toastContainer.appendChild(toast);
+        setTimeout(() => {
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toastContainer.removeChild(toast);
+                }, 300); // 等待淡出動畫結束後移除元素
+            }, 2000); // 顯示 2 秒
+        }, 10); // 稍微延遲以觸發動畫
+    }
+
+    // --- 複製函數 (修改) ---
+    function copyOutput() {
+        const textToCopy = outputResultElem.innerText;
+        if (!textToCopy || textToCopy === '轉換後的文字會顯示在這裡...' || textToCopy === '處理中...') {
+            showToast('輸出區域沒有內容可以複製！');
+            return;
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast('已成功複製到剪貼簿！');
+            }).catch(err => {
+                console.error('無法複製文字: ', err);
+                showToast('複製失敗！您的瀏覽器可能不支援或已阻止此操作。\n\n請嘗試手動選取文字並複製。');
+                selectText(outputResultElem);
+            });
+        } else {
+            showToast('您的瀏覽器可能不支援自動複製功能。\n\n請嘗試手動選取文字並複製。');
+            selectText(outputResultElem);
+        }
+    }
+
+    function selectText(node) {
+        if (window.getSelection) {
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.selectNodeContents(node);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        } else { console.warn("無法自動選取文字。"); }
+    }
+
+    // --- 主題切換邏輯 ---
+    const sunIcon = '☀️';
+    const moonIcon = '🌙';
+
+    // 應用主題並更新按鈕圖示
+    function applyTheme(theme) {
+        if (theme === 'dark') {
+            rootElement.classList.add('dark-mode');
+            themeToggleButton.textContent = sunIcon; // 暗模式顯示太陽圖示
+            localStorage.setItem('theme', 'dark');
+        } else {
+            rootElement.classList.remove('dark-mode');
+            themeToggleButton.textContent = moonIcon; // 亮模式顯示月亮圖示
+            localStorage.setItem('theme', 'light');
+        }
+    }
+
+    // 切換主題函數
+    function toggleTheme() {
+        const currentTheme = rootElement.classList.contains('dark-mode') ? 'dark' : 'light';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        applyTheme(newTheme);
+    }
+
+    // 初始化主題
+    function initializeTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (savedTheme) {
+            applyTheme(savedTheme); // 優先使用本地儲存的設定
+        } else {
+            // 否則根據裝置偏好設定
+            applyTheme(prefersDark ? 'dark' : 'light');
+        }
+    }
+
+    // 添加切換按鈕事件監聽器
+    themeToggleButton.addEventListener('click', toggleTheme);
+
+    // 頁面載入時初始化主題
+    document.addEventListener('DOMContentLoaded', initializeTheme);
+
+    // (可選) 監聽系統主題變化，如果使用者沒有手動設定過，則跟隨系統
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+        // 只有在使用者沒有手動選擇過主題時才跟隨系統變化
+        if (!localStorage.getItem('theme')) {
+            applyTheme(event.matches ? 'dark' : 'light');
+        }
+    });
+
+</script>
+
+</body>
+</html>
